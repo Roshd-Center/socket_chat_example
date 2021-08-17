@@ -1,85 +1,88 @@
 package com.roshd.socketexample
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
+import android.os.*
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.roshd.socketexample.R
 import java.io.BufferedReader
-import java.io.IOException
 import java.io.InputStreamReader
 import java.io.PrintWriter
-import java.net.InetAddress
 import java.net.Socket
-import java.net.UnknownHostException
 
 class MainActivity : AppCompatActivity() {
+    var button: Button? = null
+    var editText: EditText? = null
+    var textView: TextView? = null
+    private var clientSocket: Socket? = null
+    private var socketIn: BufferedReader? = null
+    private var socketOut: PrintWriter? = null
+    private val port = 8004
+    private val ip = "192.168.1.6"
+    private var myHandler: MyHandler? = null
+    private var myThread: MyThread? = null
 
-    private var socket: Socket? = null
-
-
-    companion object {
-        private const val SERVERPORT = 8004
-        private const val SERVER_IP = "192.168.1.6"
-    }
+    private val TAG = "MainActivity TAG"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val sendBtn = findViewById<View>(R.id.sendBtn) as Button
-
-        sendBtn.setOnClickListener {
-            onClick(it)
-        }
-
-        Thread(ClientThread()).start()
-    }
-
-    fun onClick(view: View?) {
-        Log.e("ASD", "HERE!")
+        val policy =
+            StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
         try {
-            socket = Socket(SERVER_IP, SERVERPORT)
-            val fromClient = findViewById<View>(R.id.sendEditText) as EditText
-            val clientMessage = fromClient.text.toString()
-            val toServer = PrintWriter(socket!!.getOutputStream(), true)
-
-            toServer.write(clientMessage)
-            toServer.close()
-
-        } catch (e: UnknownHostException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
+            clientSocket = Socket(ip, port)
+            Log.i(TAG, "Client socket: "+clientSocket.toString())
+            socketIn =
+                BufferedReader(InputStreamReader(clientSocket!!.getInputStream()))
+            socketOut = PrintWriter(clientSocket!!.getOutputStream(), false)
         } catch (e: Exception) {
+            Log.e(TAG, e.toString())
             e.printStackTrace()
+        }
+
+        myHandler = MyHandler(Looper.getMainLooper())
+        myThread = MyThread()
+        myThread!!.start()
+        button = findViewById<View>(R.id.sendBtn) as Button
+        textView = findViewById<View>(R.id.receivedTextView) as TextView
+
+        button!!.setOnClickListener {
+            Log.i(TAG, "Button clicked")
+            editText = findViewById<View>(R.id.sendEditText) as EditText
+            val toSend = editText!!.text.toString()
+            socketOut!!.print(toSend)
+            socketOut!!.flush()
+            Log.i(TAG, "Text sent: $toSend")
         }
     }
 
-    internal inner class ClientThread : Runnable {
+    internal inner class MyThread : Thread() {
         override fun run() {
-            try {
-                val serverAddr: InetAddress =
-                    InetAddress.getByName(SERVER_IP)
-                socket = Socket(serverAddr, SERVERPORT)
-                val inputStreamReader = InputStreamReader(socket!!.getInputStream())
-                val receivedTv = findViewById<View>(R.id.receivedTextView) as TextView
-                Log.e("Here", "ye")
-                val text = BufferedReader(inputStreamReader).readText()
-                Log.e("Text", text)
-                receivedTv.text = text
-                inputStreamReader.close()
+            while (true) {
+                try {
+                    Log.i(TAG,"Trying to read...")
 
-            } catch (e1: UnknownHostException) {
-                Log.e("Here","e1")
-                e1.printStackTrace()
-            } catch (e1: IOException) {
-                Log.e("Here","e2")
-                e1.printStackTrace()
+                    val data = socketIn!!.readLine()
+                    Log.i(TAG, "Input data: $data")
+
+                    val msg = myHandler!!.obtainMessage()
+                    msg.obj = data
+                    myHandler!!.sendMessage(msg)
+                } catch (e: Exception) {
+                    Log.e(TAG, e.toString())
+                    e.printStackTrace()
+                }
             }
         }
     }
 
-}
+    internal inner class MyHandler(looper: Looper) : Handler(looper) {
+        override fun handleMessage(msg: Message) {
+            textView!!.text = textView!!.text.toString() + msg.obj.toString() + "\n"
+        }
+    }
+} 
