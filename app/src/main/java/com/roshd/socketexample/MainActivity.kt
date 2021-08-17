@@ -54,6 +54,7 @@ class MainActivity : AppCompatActivity() {
             Log.i(TAG, "Button clicked")
             editText = findViewById<View>(R.id.sendEditText) as EditText
             val toSend = editText!!.text.toString()
+            editText!!.text.clear()
             socketOut!!.print(toSend)
             socketOut!!.flush()
             Log.i(TAG, "Text sent: $toSend")
