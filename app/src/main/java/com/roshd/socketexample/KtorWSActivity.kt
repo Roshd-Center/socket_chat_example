@@ -1,25 +1,20 @@
 package com.roshd.socketexample
 
-import android.os.*
+import android.annotation.SuppressLint
+import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-//import com.roshd.socketexample.data.models.Message
-//import com.tinder.scarlet.WebSocket
+import com.beust.klaxon.Klaxon
+import com.roshd.socketexample.data.models.Message
 import io.ktor.client.*
 import io.ktor.client.features.websocket.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.*
-import okhttp3.internal.wait
-
-//import java.io.BufferedReader
-//import java.io.InputStreamReader
-//import java.io.PrintWriter
-//import java.net.Socket
 
 class KtorWSActivity : AppCompatActivity() {
     lateinit var button: Button
@@ -28,6 +23,7 @@ class KtorWSActivity : AppCompatActivity() {
 
     private val TAG = "KtorWSActivity TAG"
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -44,18 +40,27 @@ class KtorWSActivity : AppCompatActivity() {
         }
 
 
-        button.setOnClickListener {
-            runBlocking {
+//        button.setOnClickListener {
+        CoroutineScope(Dispatchers.IO).launch {
                 client.webSocket(
                     method = HttpMethod.Get,
                     host = "192.168.1.6",
                     port = 8000, path = "/ws/chat/akbar/"
                 ){
-                    send("""{"message":"${editText.text}"}""")
+                    while (true){
+                        val frame = incoming.receive()
+                        if (frame is Frame.Text) {
+                            val message: Message? = Klaxon().parse<Message>(frame.readText())
+                            textView.post {
+                                textView.text = textView.text.toString() + "\n" + message!!.text
+                            }
+                        }
+                    }
+
                 }
 
             }
-        }
+//        }
 
     }
 

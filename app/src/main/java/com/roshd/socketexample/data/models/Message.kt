@@ -1,3 +1,5 @@
 package com.roshd.socketexample.data.models
 
-data class Message(val text: String)
+import com.beust.klaxon.Json
+
+data class Message(@Json(name = "message") val text: String)
