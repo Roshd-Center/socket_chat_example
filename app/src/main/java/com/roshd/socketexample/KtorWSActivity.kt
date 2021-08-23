@@ -22,9 +22,9 @@ import okhttp3.internal.wait
 //import java.net.Socket
 
 class KtorWSActivity : AppCompatActivity() {
-    var button: Button? = null
-    var editText: EditText? = null
-    var textView: TextView? = null
+    lateinit var button: Button
+    lateinit var editText: EditText
+    lateinit var textView: TextView
 
     private val TAG = "KtorWSActivity TAG"
 
@@ -44,30 +44,18 @@ class KtorWSActivity : AppCompatActivity() {
         }
 
 
-        runBlocking {
+        button.setOnClickListener {
+            runBlocking {
+                client.webSocket(
+                    method = HttpMethod.Get,
+                    host = "192.168.1.6",
+                    port = 8000, path = "/ws/chat/akbar/"
+                ){
+                    send("""{"message":"${editText.text}"}""")
+                }
 
-//            textView!!.text = "akbar"
-            client.webSocket(
-                method = HttpMethod.Get,
-                host = "192.168.1.6",
-                port = 8000, path = "/ws/chat/akbar/"
-            ) { // this: DefaultClientWebSocketSession
-
-                //   Send text frame.
-//                send("Hello, Text frame")
-
-                // Receive frame.
-//                val frame = incoming.receive()
-//                when (frame) {
-//                    is Frame.Text -> println(frame.readText())
-//                    is Frame.Binary -> println(frame.readBytes())
-//                }
             }
         }
-            button!!.setOnClickListener {
-                Log.i(TAG, "Button clicked")
-
-            }
 
     }
 
