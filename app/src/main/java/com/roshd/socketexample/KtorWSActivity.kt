@@ -42,25 +42,36 @@ class KtorWSActivity : AppCompatActivity() {
 
 //        button.setOnClickListener {
         CoroutineScope(Dispatchers.IO).launch {
+            client.webSocket(
+                method = HttpMethod.Get,
+                host = "192.168.1.6",
+                port = 8000, path = "/ws/chat/akbar/"
+            ) {
+                while (true) {
+                    val frame = incoming.receive()
+                    if (frame is Frame.Text) {
+                        val message: Message? = Klaxon().parse<Message>(frame.readText())
+                        textView.post {
+                            textView.text = textView.text.toString() + "\n" + message!!.text
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+        button.setOnClickListener {
+            runBlocking {
                 client.webSocket(
                     method = HttpMethod.Get,
                     host = "192.168.1.6",
                     port = 8000, path = "/ws/chat/akbar/"
-                ){
-                    while (true){
-                        val frame = incoming.receive()
-                        if (frame is Frame.Text) {
-                            val message: Message? = Klaxon().parse<Message>(frame.readText())
-                            textView.post {
-                                textView.text = textView.text.toString() + "\n" + message!!.text
-                            }
-                        }
-                    }
-
+                ) {
+                    send(Klaxon().toJsonString(Message(editText.text.toString())))
                 }
-
             }
-//        }
+        }
 
     }
 
