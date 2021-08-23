@@ -1,5 +1,9 @@
 package com.roshd.socketexample
 
+import io.ktor.client.*
+import io.ktor.client.features.websocket.*
+import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -11,7 +15,19 @@ import org.junit.Assert.*
  */
 class ExampleUnitTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun test_ktor_ws() {
+        val client = HttpClient {
+            install(WebSockets)
+        }
+
+        runBlocking {
+            client.webSocket(
+                method = HttpMethod.Get,
+                host = "127.0.0.1",
+                port = 8000, path = "/ws/chat/akbar/"
+            ) {
+
+            }
+        }
     }
 }

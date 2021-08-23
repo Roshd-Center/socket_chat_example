@@ -7,7 +7,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.roshd.socketexample.R
+//import com.roshd.socketexample.data.models.Message
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
