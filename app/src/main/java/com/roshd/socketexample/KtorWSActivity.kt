@@ -17,6 +17,13 @@ import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.*
 
 class KtorWSActivity : AppCompatActivity() {
+
+    companion object {
+        const val HOST = "192.168.1.6"
+        const val PORT = 8000
+        const val PATH = "/ws/chat/akbar/"
+    }
+
     lateinit var button: Button
     lateinit var editText: EditText
     lateinit var textView: TextView
@@ -27,9 +34,6 @@ class KtorWSActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        val policy =
-//            StrictMode.ThreadPolicy.Builder().permitAll().build()
-//        StrictMode.setThreadPolicy(policy)
 
         button = findViewById<View>(R.id.sendBtn) as Button
         textView = findViewById<View>(R.id.receivedTextView) as TextView
@@ -44,8 +48,8 @@ class KtorWSActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             client.webSocket(
                 method = HttpMethod.Get,
-                host = "192.168.1.6",
-                port = 8000, path = "/ws/chat/akbar/"
+                host = HOST,
+                port = PORT, path = PATH
             ) {
                 while (true) {
                     val frame = incoming.receive()
@@ -65,8 +69,8 @@ class KtorWSActivity : AppCompatActivity() {
             runBlocking {
                 client.webSocket(
                     method = HttpMethod.Get,
-                    host = "192.168.1.6",
-                    port = 8000, path = "/ws/chat/akbar/"
+                    host = HOST,
+                    port = PORT, path = PATH
                 ) {
                     send(Klaxon().toJsonString(Message(editText.text.toString())))
                 }
