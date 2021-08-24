@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.beust.klaxon.Klaxon
+import com.roshd.socketexample.data.chatService
 import com.roshd.socketexample.data.models.Message
 import io.ktor.client.*
 import io.ktor.client.features.websocket.*
@@ -34,7 +35,9 @@ class ScarletWSActivity : AppCompatActivity() {
         textView = findViewById<View>(R.id.receivedTextView) as TextView
         editText = findViewById<View>(R.id.sendEditText) as EditText
 
-        TODO("Scarlet implementation")
+        button.setOnClickListener {
+            chatService.sendMessage(Message("Hi!"))
+        }
 
     }
 
