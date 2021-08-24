@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.beust.klaxon.Klaxon
 import com.roshd.socketexample.data.ChatService
 import com.roshd.socketexample.data.chatService
 import com.roshd.socketexample.data.models.Message
@@ -47,13 +48,28 @@ class ScarletWSActivity : AppCompatActivity() {
         editText = findViewById<View>(R.id.sendEditText) as EditText
 
         chatService = chatService(application)
+        chatService.observeEvents().start(MyObserver())
+
 
         button.setOnClickListener {
             chatService.sendMessage(Message(editText.text.toString()))
             editText.text.clear()
         }
 
-        chatService.observeEvents().start(MyObserver())
+        CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                val received_msg = chatService.observeMessage().receive()
+                Log.d(TAG, "Received msg: "+ received_msg)
+
+                // Post the UI view, to update textview with the received message.
+                textView.post {
+                    textView.text = textView.text.toString() + "\n" + received_msg.message
+                }
+            }
+        }
+
+
+
 
     }
 
@@ -77,7 +93,7 @@ class ScarletWSActivity : AppCompatActivity() {
     class MySubscriber(): org.reactivestreams.Subscriber<WebSocket.Event>{
         val TAG = "ScarletWSActivity subs"
         override fun onSubscribe(s: Subscription?) {
-            Log.d(TAG, "onSubscribe: "+ s?.toString() ?: "NULL")
+            Log.d(TAG, "onSubscribe: "+ s?.toString())
         }
 
         override fun onComplete() {
