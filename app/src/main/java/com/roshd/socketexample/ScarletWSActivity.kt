@@ -49,13 +49,11 @@ class ScarletWSActivity : AppCompatActivity() {
         chatService = chatService(application)
 
         button.setOnClickListener {
-            chatService.sendMessage(Message("Hi!"))
+            chatService.sendMessage(Message(editText.text.toString()))
+            editText.text.clear()
         }
 
         chatService.observeEvents().start(MyObserver())
-//        chatService.observeEvents().subscribe(MySubscriber())
-
-//        clientLifecycleRegistry.onNext(Lifecycle.State.Started)
 
     }
 
