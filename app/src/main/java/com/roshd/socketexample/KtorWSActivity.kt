@@ -2,7 +2,6 @@ package com.roshd.socketexample
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -62,7 +61,7 @@ class KtorWSActivity : AppCompatActivity() {
 
                         // Post the UI view, to update textview with the received message.
                         textView.post {
-                            textView.text = textView.text.toString() + "\n" + message!!.text
+                            textView.text = textView.text.toString() + "\n" + message!!.message
                         }
                     }
                 }

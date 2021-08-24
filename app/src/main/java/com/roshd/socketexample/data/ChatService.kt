@@ -1,5 +1,6 @@
 package com.roshd.socketexample.data
 
+import android.app.Application
 import androidx.lifecycle.LiveData
 import com.roshd.socketexample.data.models.Message
 import com.tinder.scarlet.Stream
@@ -16,6 +17,6 @@ interface ChatService {
     fun observeMessage(): ReceiveChannel<Message>
 
     @Receive
-    fun observeOnConnectionOpenedEvent(): Stream<WebSocket.Event>
+    fun observeEvents(): Stream<WebSocket.Event>
 }
-val chatService = scarlet.create<ChatService>()
+fun chatService(application: Application) = getScarlet(application).create<ChatService>()

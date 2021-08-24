@@ -60,5 +60,6 @@ dependencies {
     implementation 'com.tinder.scarlet:message-adapter-moshi:0.1.12'
     implementation 'com.tinder.scarlet:websocket-okhttp:0.1.12'
     implementation 'com.tinder.scarlet:stream-adapter-coroutines:0.1.12'
+    implementation 'com.tinder.scarlet:lifecycle-android:0.1.12'
 }
 
