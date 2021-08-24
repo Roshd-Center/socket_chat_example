@@ -47,17 +47,25 @@ class ScarletWSActivity : AppCompatActivity() {
         textView = findViewById<View>(R.id.receivedTextView) as TextView
         editText = findViewById<View>(R.id.sendEditText) as EditText
 
+        // ChatService instancing
         chatService = chatService(application)
+
+        // Starting the service and observing its events.
         chatService.observeEvents().start(MyObserver())
 
 
         button.setOnClickListener {
+            // Sending message using chatService.sendMessage
             chatService.sendMessage(Message(editText.text.toString()))
+
+            // Clearing the EditText
             editText.text.clear()
         }
 
+        // Start a Coroutine to Receiving websocket messages:
         CoroutineScope(Dispatchers.IO).launch {
             while (true) {
+                // Receiving message from chatService.observeMessage
                 val received_msg = chatService.observeMessage().receive()
                 Log.d(TAG, "Received msg: "+ received_msg)
 
@@ -73,6 +81,9 @@ class ScarletWSActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * A simple Observer provided for chatService.observeEvents.start
+     */
     class MyObserver(): Observer<WebSocket.Event>{
         val TAG = "ScarletWSActivity Obs"
         override fun onComplete() {
@@ -90,6 +101,9 @@ class ScarletWSActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * A simple Subscriber provided for chatService.observeEvents.subscribe
+     */
     class MySubscriber(): org.reactivestreams.Subscriber<WebSocket.Event>{
         val TAG = "ScarletWSActivity subs"
         override fun onSubscribe(s: Subscription?) {

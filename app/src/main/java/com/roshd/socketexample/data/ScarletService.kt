@@ -19,15 +19,18 @@ fun createAppForegroundLifecycle(application: Application): Lifecycle {
 fun getScarlet(application:Application) : Scarlet {
     val URL = "ws://192.168.100.14:8000/ws/chat/akbar/"
 
+    // Building OKHttp client.
     val okHttpClient = OkHttpClient.Builder()
         .writeTimeout(500, TimeUnit.MILLISECONDS)
         .readTimeout(500, TimeUnit.MILLISECONDS)
         .build()
 
+    // Building Moshi message adapter instance.
     val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
         .build()
 
+    // Building Scarlet instance.
     return Scarlet.Builder()
         .webSocketFactory(okHttpClient.newWebSocketFactory(URL))
         .addMessageAdapterFactory(MoshiMessageAdapter.Factory(moshi))
