@@ -13,7 +13,7 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.Socket
 
-class MainActivity : AppCompatActivity() {
+class SocketActivity : AppCompatActivity() {
     var button: Button? = null
     var editText: EditText? = null
     var textView: TextView? = null
